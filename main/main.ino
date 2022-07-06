@@ -1,7 +1,7 @@
 #include <WiFiManager.h>
 #include <ESP8266WiFi.h>
 #include "src/WiFiHandler/WiFiHandler.h"
-// #include "teste.h"
+#include "src/Logger/Logger.h"
 
 WiFiManager wifiManager;
 ESP8266WiFiClass wifi;
@@ -14,7 +14,8 @@ void setup()
 //    setup_wifi();
 //    setup_wifi();
    setup_wifi();
-   delay(10000);
+   logger_print("TESTEEEEEEEEEEEE");
+//    delay(10000);
     // teste();
     Serial.begin(115200);
     wifiManager.autoConnect("ESP", "12345678");
@@ -22,7 +23,8 @@ void setup()
 
 void loop()
 {
-    setup_wifi();
+    // logger_print("TESTEEEEEEEEEEEE");
+    //setup_wifi();
     // if(wifi.isConnected())
     // {
     //     Serial.print("Connected in the AP:");

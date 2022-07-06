@@ -1,6 +1,10 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#include <LiquidCrystal.h>
+#include <HardwareSerial.h>
+#include "../Pinout.h"
+
 #define LOGGER_LIMIT_SIZE 32
 
 // função para loggar mensagens no Monitor Serial e no Display.
