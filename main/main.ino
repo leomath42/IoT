@@ -12,9 +12,6 @@ long last_time = 0;
 
 char buffer[32];
 
-
-// void logger_weather(const char* humidity, const char* temperature);
-
 void setup()
 {
     buffer[30] = '\n';
@@ -29,30 +26,17 @@ void setup()
     setup_wifi();
 }
 
-
-// char buffer_1[16];
-// char buffer_2[16];
-
-// void logger_weather(const char* humidity, const char* temperature)
-// {
-//     logger_print(buffer_1);
-//         logger_print(buffer_2);
-
-// }
-
 void loop()
 {
     last_time = millis();
 
-    if(1000 < (last_time - last_read))
+    if(10000 < (last_time - last_read))
     {
         last_read = last_time;
         Weather weather = read_weather();
 
-        int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f\nTemp: %.1f", weather.humidity, weather.temperature);
-        Serial.println("DDDDDDDDDDDDDDDD");
+        int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f", weather.humidity, weather.temperature);
         logger_print(buffer);
-        // int ret_2 = snprintf(buffer_2, sizeof buffer_2, "Temperature: %.2f", weather.temperature);
     }
 
 // OTA, MQTT

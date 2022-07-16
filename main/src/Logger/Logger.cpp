@@ -13,46 +13,52 @@ void display_setup()
     display.begin(16, 2);
 }
 
+// log informations to serial and display(16x2)
+// this break lines at display if *str* causes an overflow (line size is 16).
 void logger_print(const char* str){
 
     if(str != NULL)
     {
         Serial.println("TESTING::::");
-        // Serial.println(str);
-        size_t size = 0 ; //strlen(str);    
+        size_t size = strlen(str);    
 
         display.clear();
-
+        //                                
         if(size > 16)
         {   
-            Serial.println(size);
-
-            char* temp = NULL;
-            char* temp2 = NULL;
-
-            for(int i = 0; i<16; i++)
+            char temp[17];
+            char temp2[17];
+            
+            // Line 1
+            int i = 0;
+            for(i; i<16; i++)
             {
-                *(temp+1) = *(str+1);
+                *(temp+i) = *(str+i);
             }
+            // NULL Byte
+            *(temp+i) = '\0';
 
-            display.setCursor(0, 1);
-            display.println(temp);
             Serial.println(temp);
+            display.setCursor(0, 0);
+            display.print(temp);
 
-            for(int i = 16; i<size; i++)
+            // Line 2
+            int j = 0;
+            for(j; j+i<size; j++)
             {
-                *(temp2+1) = *(str+1);
+                *(temp2+j) = *(str+j+i);
             }
+            // NULL Byte
+            *(temp2+j) = '\0';
 
-            display.setCursor(0, 2);
-            display.println(temp2);
             Serial.println(temp2);
-
+            display.setCursor(0, 1);
+            display.print(temp2);
         }
         else {
             Serial.println("False");
             Serial.println(size);
-            display.setCursor(0, 1);
+            display.setCursor(0, 0);
             display.println(str);
         }
     }
