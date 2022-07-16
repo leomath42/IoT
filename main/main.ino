@@ -5,12 +5,14 @@
 #include "src/Weather/Weather.h"
 
 
-#define TIME_TO_WAIT 60000
+#define TIME_TO_WAIT 10000
 
 long last_read = 0;
 long last_time = 0;
 
 char buffer[32];
+
+WeatherStack stack;
 
 void setup()
 {
@@ -30,10 +32,21 @@ void loop()
 {
     last_time = millis();
 
-    if(10000 < (last_time - last_read))
+    if(TIME_TO_WAIT < (last_time - last_read))
     {
         last_read = last_time;
         Weather weather = read_weather();
+
+        //int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f", weather.humidity, weather.temperature);
+        //logger_print(buffer);
+
+        bool success = push_weather(&stack, weather);
+        Weather* pweather = pop_weather(&stack);
+
+        if(pweather == NULL)
+        {
+            Serial.println("IS NULLL !!!!!");
+        }
 
         int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f", weather.humidity, weather.temperature);
         logger_print(buffer);
