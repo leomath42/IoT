@@ -17,31 +17,40 @@ Weather read_weather()
     return weather;
 }
 
-bool push_weather(WeatherStack* pstack, Weather weather)
+bool push_weather(WeatherStack *pstack, Weather weather)
 {
-   if(stack_limit_counter < WEATHER_STACK_LIMIT)
-   {
+    if (stack_limit_counter < WEATHER_STACK_LIMIT)
+    {
+        Serial.printf("Address::: %p\n", (void *)pstack);
+
         WeatherStack stack;
 
         stack.weather = weather;
         stack.before = pstack;
-        pstack = &stack;    
+        pstack = &stack;
+
+        Serial.printf("Address::: %f\n", pstack->weather.humidity);
+        Serial.printf("Address::: %p\n", (void *)pstack);
 
         stack_limit_counter++;
         return true;
-   }
-   else {
-       return false;
-   }
+    }
+    else
+    {
+        return false;
+    }
 }
 
-Weather* pop_weather(WeatherStack* pstack)
+Weather *pop_weather(WeatherStack *pstack)
 {
-    if(pstack != NULL)
+    if (pstack != NULL)
     {
-        Serial.println(pstack->weather.humidity);
+        Serial.printf("====POP====\n");
+        Serial.printf("Address::: %p\n", (void *)pstack);
         Weather aux = pstack->weather;
         pstack = pstack->before;
+        Serial.printf("Address::: %p\n", (void *)pstack);
+        Serial.printf("====END====\n");
         stack_limit_counter--;
 
         return &aux;
