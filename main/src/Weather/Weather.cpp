@@ -17,22 +17,12 @@ Weather read_weather()
     return weather;
 }
 
-bool push_weather(WeatherStack *pstack, Weather weather)
+bool push_weather(WeatherStack *pstack, struct Weather weather)
 {
-    if (stack_limit_counter < WEATHER_STACK_LIMIT)
+    if (pstack->index < WEATHER_STACK_LIMIT)
     {
-        Serial.printf("Address::: %p\n", (void *)pstack);
-
-        WeatherStack stack;
-
-        stack.weather = weather;
-        stack.before = pstack;
-        pstack = &stack;
-
-        Serial.printf("Address::: %f\n", pstack->weather.humidity);
-        Serial.printf("Address::: %p\n", (void *)pstack);
-
-        stack_limit_counter++;
+        pstack->elements[pstack->index] = weather;
+        pstack->index++;
         return true;
     }
     else
@@ -41,20 +31,26 @@ bool push_weather(WeatherStack *pstack, Weather weather)
     }
 }
 
-Weather *pop_weather(WeatherStack *pstack)
+Weather* pop_weather(WeatherStack *pstack)
 {
-    if (pstack != NULL)
+    if (pstack == NULL || pstack->index == 0) 
     {
-        Serial.printf("====POP====\n");
-        Serial.printf("Address::: %p\n", (void *)pstack);
-        Weather aux = pstack->weather;
-        pstack = pstack->before;
-        Serial.printf("Address::: %p\n", (void *)pstack);
-        Serial.printf("====END====\n");
-        stack_limit_counter--;
-
-        return &aux;
+        return NULL;
     };
 
-    return NULL;
+    Weather* pweather = (pstack->elements + pstack->index - 1);
+
+    pstack->index--;
+
+    return pweather;
+}
+
+WeatherStack* newStack()
+{
+    WeatherStack* stack = (WeatherStack *) malloc(sizeof(WeatherStack));
+    stack->index = 0;
+    stack->maxSize = WEATHER_STACK_LIMIT;
+    stack->elements = (Weather *) malloc(sizeof(Weather) * WEATHER_STACK_LIMIT);
+
+    return stack;
 }

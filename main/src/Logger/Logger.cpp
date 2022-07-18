@@ -6,7 +6,6 @@ LiquidCrystal display(D7, D6, D5, D3, D2, D1);
 
 // função para loggar mensagens no Monitor Serial e no Display.
 // chama internamente logger_serial_print ou logger_display_print.
-char* teste = "TESTE";
 
 void display_setup()
 {
@@ -19,11 +18,10 @@ void logger_print(const char* str){
 
     if(str != NULL)
     {
-        Serial.println("TESTING::::");
         size_t size = strlen(str);    
 
         display.clear();
-        //                                
+
         if(size > 16)
         {   
             char temp[17];
@@ -56,7 +54,6 @@ void logger_print(const char* str){
             display.print(temp2);
         }
         else {
-            Serial.println("False");
             Serial.println(size);
             display.setCursor(0, 0);
             display.println(str);

@@ -7,4 +7,8 @@
 
 void setup_wifi();
 
+void setup_ota();
+
+void handle_ota();
+
 #endif

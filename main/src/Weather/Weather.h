@@ -7,24 +7,27 @@
 #define DHTTYPE DHT11 // DHT 11
 #define WEATHER_STACK_LIMIT 60
 
-typedef struct 
+typedef struct Weather Weather;
+struct Weather 
 {
     float temperature;
     float humidity;
-} Weather;
+};
 
 typedef struct WeatherStack WeatherStack;                                      
 
 struct WeatherStack                                                            
 {                                                                              
-    /* data */                                                                 
-    Weather weather;                                                           
-    WeatherStack* before;                                                      
+    int index;
+    int maxSize;
+    Weather* elements;                                                           
 };                                                                             
 
 void setup_weather();
 
 Weather read_weather();
+
+WeatherStack* newStack();
 
 Weather* pop_weather(WeatherStack* pstack);
 

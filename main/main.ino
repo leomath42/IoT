@@ -12,12 +12,12 @@ long last_time = 0;
 
 char buffer[32];
 
-WeatherStack stack;
+WeatherStack* stack = newStack();
 
 void setup()
 {
-    buffer[30] = '\n';
-    buffer[31] = 0;
+    // buffer[30] = '\n';
+    // buffer[31] = 0;
 
     Serial.begin(115200);
     
@@ -25,11 +25,13 @@ void setup()
     
     display_setup();
     
-    setup_wifi();
+    setup_ota();
 }
 
 void loop()
 {
+    handle_ota();
+
     last_time = millis();
 
     if(TIME_TO_WAIT < (last_time - last_read))
@@ -37,19 +39,19 @@ void loop()
         last_read = last_time;
         Weather weather = read_weather();
 
-        //int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f", weather.humidity, weather.temperature);
-        //logger_print(buffer);
+        bool success = push_weather(stack, weather);
 
-        bool success = push_weather(&stack, weather);
-        Weather* pweather = pop_weather(&stack);
+        Weather weather2 = stack->elements[stack->index - 1];
+        Weather* pweather = pop_weather(stack);
 
         if(pweather == NULL)
         {
-            Serial.println("IS NULLL !!!!!");
+        }
+        else{
+            int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f\0", pweather->humidity, pweather->temperature);
+            logger_print(buffer);
         }
 
-        int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f", weather.humidity, weather.temperature);
-        logger_print(buffer);
     }
 
 // OTA, MQTT
