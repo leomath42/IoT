@@ -1,10 +1,49 @@
 #include "WiFiHandler.h"
+#include <PubSubClient.h>
 #include <ESP8266WiFi.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
+//defines de id mqtt e tópicos para publicação e subscribe
+#define TOPICO_SUBSCRIBE_P1 "led/switch" 
+                                                   
+#define ID_MQTT  "m5020"
+
+// MQTT
+const char* BROKER_MQTT = "test.mosquitto.org";
+int BROKER_PORT = 1883;
+
+//Variáveis e objetos globais
+WiFiClient espClient;
+PubSubClient MQTT(espClient);
 
 WiFiManager wifiManager;
 ESP8266WiFiClass wifi;
+
+void reconnectWiFi()
+{
+    if (WiFi.status() == WL_CONNECTED)
+        return;
+	
+    WiFi.begin(); 
+    
+    while (WiFi.status() != WL_CONNECTED) 
+    {
+        delay(100);
+        Serial.print(".");
+    }
+  
+    Serial.println();
+    Serial.print("Conectado com sucesso!");
+    Serial.println();
+    Serial.print("IP obtido: ");
+    Serial.print(WiFi.localIP());  // mostra o endereço IP obtido via DHCP
+    Serial.println();
+    Serial.print("Endereço MAC: ");
+    Serial.print(WiFi.macAddress()); // mostra o endereço MAC do esp8266
+}
 
 void setup_wifi()
 {
@@ -32,10 +71,9 @@ void handle_ota()
 void setup_ota()
 {
   Serial.println("Iniciando OTA....");
-  ArduinoOTA.setHostname("pratica-4"); // Define o nome da porta
+  ArduinoOTA.setHostname("ota-port");
 
-  // No authentication by default
-   ArduinoOTA.setPassword((const char *)"teste-ota"); // senha para carga via WiFi (OTA)
+  ArduinoOTA.setPassword((const char *)"123OTA654");
   ArduinoOTA.onStart([]() {
     Serial.println("Start");
   });
@@ -56,3 +94,65 @@ void setup_ota()
   ArduinoOTA.begin();
 }
 
+
+void setup_MQTT()
+{
+    MQTT.setServer(BROKER_MQTT, BROKER_PORT);
+    MQTT.setCallback(mqtt_callback);
+}
+
+void mqtt_callback(char* topic, byte* payload, unsigned int length)
+{
+  String msg;
+  
+  for(int i = 0; i < length; i++) 
+  {
+     char c = (char)payload[i];
+     msg += c;
+  }
+  
+  Serial.println("msg = " +  msg);
+  
+  if (msg.equals("ON"))
+  {
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("LED Ligado");
+  }
+  
+  if (msg.equals("OFF"))
+  {
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("LED Desligado");
+  }   
+}
+
+
+void reconnectMQTT()
+{
+    while (!MQTT.connected()) 
+    {
+        Serial.print("* Tentando se conectar ao Broker MQTT: ");
+        Serial.println(BROKER_MQTT);
+ 
+        if (MQTT.connect(ID_MQTT))
+        {
+            Serial.println("Conectado com sucesso ao broker MQTT!");
+            MQTT.subscribe(TOPICO_SUBSCRIBE_P1);
+        } 
+        else 
+        {
+            Serial.println("Falha ao reconectar no broker.");
+            Serial.println("Havera nova tentativa de conexao em 2s");
+            delay(2000);
+        }
+    }
+}
+
+
+void checkConnectionWiFiMQTT()
+{
+    if (!MQTT.connected()) 
+        reconnectMQTT();
+    
+     reconnectWiFi();
+}

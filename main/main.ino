@@ -26,11 +26,15 @@ void setup()
     display_setup();
     
     setup_ota();
+
+    setup_MQTT();
 }
 
 void loop()
 {
     handle_ota();
+
+    checkConnectionWiFiMQTT();
 
     last_time = millis();
 
@@ -53,10 +57,6 @@ void loop()
         }
 
     }
-
-// OTA, MQTT
-// 
-// WiFiManager
 
 // Interrupção hardware -> push button 
 // time 
