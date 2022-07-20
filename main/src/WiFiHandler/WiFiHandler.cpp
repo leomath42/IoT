@@ -12,6 +12,7 @@ void setup_wifi()
     wifiManager.setConnectTimeout(60);
 
     logger_print("Starting WiFi...");
+    delay(1000);
     if(wifi.status() == WL_DISCONNECTED)
     {
         logger_print("Failed to connect.");
@@ -20,6 +21,10 @@ void setup_wifi()
         delay(1000);
         logger_print("AP: ESP");
         wifiManager.autoConnect("ESP", "12345678");
+    }
+    else{
+      Serial.println("IP address: " +  wifi.localIP().toString());
+      delay(1000);
     }
 
 }
