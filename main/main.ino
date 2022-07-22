@@ -51,6 +51,7 @@ char *HttpPost(Weather weather)
     char *http_post_buffer = (char *)malloc(sizeof(char) * buffer_size);
 
     int ret = snprintf(http_post_buffer, buffer_size, post_header, length, weather_buffer);
+    free(weather_buffer);
 
     return http_post_buffer;
 }
@@ -81,7 +82,7 @@ void loop()
 
     last_time = millis();
 
-    if (5000 < (last_time - last_read))
+    if (100 < (last_time - last_read))
     {
         last_read = last_time;
         Weather weather = read_weather();
@@ -96,7 +97,7 @@ void loop()
 
     pop_last_time = millis();
 
-    if (2000 < (pop_last_time - pop_last_read))
+    if (100 < (pop_last_time - pop_last_read))
     {
         pop_last_read = pop_last_time;
 
@@ -117,8 +118,8 @@ void loop()
                 Serial.println("CONNECTED");
                 char *post = HttpPost(*pweather);
                 Serial.println(post);
-
                 client.write(post);
+                free(post);
             }
         }
     }
