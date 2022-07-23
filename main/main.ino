@@ -29,7 +29,7 @@ char *serializeWeather(Weather weather, size_t *length, size_t size)
 }
 
 // Do a http post of a weather object.
-char* HttpPost(Weather weather)
+char *HttpPost(Weather weather)
 {
     const char *post_header = "POST /weather HTTP/1.1\r\n"
                               "Content-Type: application/json\r\n"
@@ -55,40 +55,23 @@ WiFiClient client;
 
 void setup()
 {
-    // buffer[30] = '\n';
-    // buffer[31] = 0;
-
-    // WiFi.mode(WIFI_AP_STA);
-
     Serial.begin(115200);
-
     setup_wifi();
-
     setup_weather();
-
     display_setup();
-
     // setup_ota();
 }
 
 void loop()
 {
-
     handle_ota();
-
     last_time = millis();
-
     if (100 < (last_time - last_read))
     {
         last_read = last_time;
         Weather weather = read_weather();
 
         bool success = push_weather(stack, weather);
-
-        if (stack != NULL)
-        {
-            // Serial.printf("Number in stack %i\n", stack->index);
-        }
     }
 
     pop_last_time = millis();
@@ -97,44 +80,31 @@ void loop()
     {
         pop_last_read = pop_last_time;
 
-        Weather *pweather = pop_weather(stack);
-
-        if (pweather != NULL)
+        if (stack->index == WEATHER_STACK_LIMIT)
         {
             // int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f\0", pweather->humidity, pweather->temperature);
             // logger_print(buffer);
-
             if (client.connect(server, 5000))
             {
+                // compute the mean of all weather mensuration::
+                Weather aux;
+                for (int i = stack->index; i> 0; i--)
+                {
+                    Weather *pweather = pop_weather(stack);
 
-                //Serial.printf(aux);
-                //Serial.println(ssize);
-                //Serial.println("CONNECTED");
-                uint32_t usage = system_get_free_heap_size();
-//                Serial.printf("==== HttpPost (%i) ====\n", usage);
-                char *post = HttpPost(*pweather);
+                    aux.humidity+= pweather->humidity;
+                    aux.temperature+= pweather->temperature;
+                }
+                aux.humidity/= stack->maxSize;
+                aux.temperature/= stack->maxSize;
+                //uint32_t usage = system_get_free_heap_size();
 
-                usage = system_get_free_heap_size();
-//                Serial.printf("==== middle (%i) ====\n", usage);
-                // Serial.println(post);
+                // Post to server
+                char *post = HttpPost(aux);
                 client.write(post);
                 free(post);
-                usage = system_get_free_heap_size();
-//                Serial.printf("====END (%i) ====\n", usage);
-
-
-                usage = system_get_free_heap_size();
-//                Serial.printf("==== before flush  (%i) ====\n", usage);
                 client.flush();
-                usage = system_get_free_heap_size();
-//                Serial.printf("==== after flush  (%i) ====\n", usage);
-
-
-                usage = system_get_free_heap_size();
-//                Serial.printf("==== before stop  (%i) ====\n", usage);
                 client.stop();
-                usage = system_get_free_heap_size();
-//                Serial.printf("==== after stop  (%i) ====\n", usage);
             }
         }
     }
