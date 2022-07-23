@@ -23,18 +23,13 @@ WeatherStack *stack = newStack();
 // returns the serialization size.
 char *serializeWeather(Weather weather, size_t *length, size_t size)
 {
-    Serial.println("========BEGGUER===============");
     char *aux = (char *)malloc(sizeof(char) * size);
-
-    Serial.println(weather.humidity);
-    Serial.println(weather.temperature);
-
     *length = snprintf(aux, size, "{\"temperature\":\"%.2f\", \"humidity\":\"%.2f\"}", weather.temperature, weather.humidity);
     return aux;
 }
 
 // Do a http post of a weather object.
-char *HttpPost(Weather weather)
+char* HttpPost(Weather weather)
 {
     const char *post_header = "POST /weather HTTP/1.1\r\n"
                               "Content-Type: application/json\r\n"
@@ -78,6 +73,7 @@ void setup()
 
 void loop()
 {
+
     handle_ota();
 
     last_time = millis();
@@ -107,19 +103,38 @@ void loop()
         {
             // int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f\0", pweather->humidity, pweather->temperature);
             // logger_print(buffer);
-            size_t ssize = 0;
-
-            char *aux = serializeWeather(*pweather, &ssize, 48);
-            Serial.printf(aux);
-            Serial.println(ssize);
 
             if (client.connect(server, 5000))
             {
-                Serial.println("CONNECTED");
+
+                //Serial.printf(aux);
+                //Serial.println(ssize);
+                //Serial.println("CONNECTED");
+                uint32_t usage = system_get_free_heap_size();
+//                Serial.printf("==== HttpPost (%i) ====\n", usage);
                 char *post = HttpPost(*pweather);
-                Serial.println(post);
+
+                usage = system_get_free_heap_size();
+//                Serial.printf("==== middle (%i) ====\n", usage);
+                // Serial.println(post);
                 client.write(post);
                 free(post);
+                usage = system_get_free_heap_size();
+//                Serial.printf("====END (%i) ====\n", usage);
+
+
+                usage = system_get_free_heap_size();
+//                Serial.printf("==== before flush  (%i) ====\n", usage);
+                client.flush();
+                usage = system_get_free_heap_size();
+//                Serial.printf("==== after flush  (%i) ====\n", usage);
+
+
+                usage = system_get_free_heap_size();
+//                Serial.printf("==== before stop  (%i) ====\n", usage);
+                client.stop();
+                usage = system_get_free_heap_size();
+//                Serial.printf("==== after stop  (%i) ====\n", usage);
             }
         }
     }
