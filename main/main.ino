@@ -5,7 +5,10 @@
 #include "src/Weather/Weather.h"
 
 #define TIME_TO_WAIT 10000
-#define POST_HEADER_SIZE 100
+#define POST_HEADER_SIZE 108
+#define API_PORT 5000
+#define API_HOST "192.168.0.10"
+//IPAddress server(192, 168, 0, 10);
 
 long last_read = 0;
 long last_time = 0;
@@ -15,7 +18,6 @@ long pop_last_time = 0;
 
 char buffer[32];
 
-IPAddress server(192, 168, 0, 10);
 
 WeatherStack *stack = newStack();
 
@@ -31,7 +33,7 @@ char *serializeWeather(Weather weather, size_t *length, size_t size)
 // Do a http post of a weather object.
 char *HttpPost(Weather weather)
 {
-    const char *post_header = "POST /weather HTTP/1.1\r\n"
+    const char *post_header = "POST /api/v1/weather HTTP/1.1\r\n"
                               "Content-Type: application/json\r\n"
                               "Connection: close\r\n"
                               "Content-Length: %i\r\n"
@@ -66,7 +68,7 @@ void loop()
 {
     handle_ota();
     last_time = millis();
-    if (100 < (last_time - last_read))
+    if (TIME_TO_WAIT < (last_time - last_read))
     {
         last_read = last_time;
         Weather weather = read_weather();
@@ -76,7 +78,7 @@ void loop()
 
     pop_last_time = millis();
 
-    if (100 < (pop_last_time - pop_last_read))
+    if (TIME_TO_WAIT < (pop_last_time - pop_last_read))
     {
         pop_last_read = pop_last_time;
 
@@ -84,7 +86,7 @@ void loop()
         {
             // int ret = snprintf(buffer, sizeof buffer, "Humidity: %.1f  Temp: %.1f\0", pweather->humidity, pweather->temperature);
             // logger_print(buffer);
-            if (client.connect(server, 5000))
+            if (client.connect(API_HOST, API_PORT))
             {
                 // compute the mean of all weather mensuration::
                 Weather aux;
