@@ -112,7 +112,6 @@ void ICACHE_RAM_ATTR doActionInInterrupt()
     }
     interrupt_last_read = millis();
 
-    while(1){};
 }
 
 // void setup
