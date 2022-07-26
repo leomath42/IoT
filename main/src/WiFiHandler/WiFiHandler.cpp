@@ -6,10 +6,10 @@
 WiFiManager wifiManager;
 ESP8266WiFiClass wifi;
 
-void setup_wifi()
+void setup_wifi(const char* AP_SSID, const char* password)
 {
     // wifiManager.resetSettings();
-    wifiManager.setConnectTimeout(60);
+    wifiManager.setConnectTimeout(10);
 
     logger_print("Starting WiFi...");
     delay(1000);
@@ -20,10 +20,12 @@ void setup_wifi()
         logger_print("Going to init AP mode.");
         delay(1000);
         logger_print("AP: ESP");
-        wifiManager.autoConnect("ESP", "12345678");
+        wifiManager.autoConnect(AP_SSID, password);
     }
     else{
-      Serial.println("IP address: " +  wifi.localIP().toString());
+      char buffer[32];
+      int ret = snprintf(buffer, sizeof buffer, "IP: %s", wifi.localIP().toString().c_str());
+      logger_print(buffer);
       delay(1000);
     }
 
@@ -34,13 +36,11 @@ void handle_ota()
     ArduinoOTA.handle();
 }
 
-void setup_ota()
+void setup_ota(const char* hostname, const char* password)
 {
   Serial.println("Iniciando OTA....");
-  ArduinoOTA.setHostname("pratica-4"); // Define o nome da porta
-
-  // No authentication by default
-   ArduinoOTA.setPassword((const char *)"teste-ota"); // senha para carga via WiFi (OTA)
+  ArduinoOTA.setHostname(hostname);
+  ArduinoOTA.setPassword(password);
   ArduinoOTA.onStart([]() {
     Serial.println("Start");
   });

@@ -20,4 +20,6 @@ void logger_serial_print(const char* str);
 // função para loggar mensagens no Display.
 void logger_display_print(const char* str);
 
+void display_clear();
+
 #endif LOGGER_H

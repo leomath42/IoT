@@ -12,6 +12,11 @@ void display_setup()
     display.begin(16, 2);
 }
 
+void display_clear()
+{
+    display.clear();
+}
+
 // log informations to serial and display(16x2)
 // this break lines at display if *str* causes an overflow (line size is 16).
 void logger_print(const char* str){
