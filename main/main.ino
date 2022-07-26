@@ -68,7 +68,7 @@ char *serializeWeather(Weather weather, size_t *length, size_t size)
 char *HttpPost(Weather weather)
 {
     const char *post_header = "POST /api/v1/weather HTTP/1.1\r\n"
-                              "Host: leomath42-weather-iot.herokuapp.com\r\n"
+                              "Host: " HOST"\r\n"
                               "Connection: close\r\n"
                               "Content-Type: application/json\r\n"
                               "Content-Length: %i\r\n"
@@ -111,11 +111,14 @@ void ICACHE_RAM_ATTR doActionInInterrupt()
         interruptState = true;
     }
     interrupt_last_read = millis();
+
+    while(1){};
 }
 
 // void setup
 void setup()
 {
+    ESP.wdtEnable(5000);
     pinMode(INTERRUPT_PIN, INPUT);
     attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), doActionInInterrupt, FALLING);
     Serial.begin(115200);
@@ -128,6 +131,7 @@ void setup()
 // void loop
 void loop()
 {
+    ESP.wdtFeed(); // avoid reset by error using watchdog;
     handle_ota();
 
     if(interruptState)
