@@ -12,7 +12,7 @@
 #define INTERRUPT_TASK_TIME 10000
 #define POST_HEADER_SIZE 155
 
-#define ENV 1  // Actual env
+#define ENV 0  // Actual env
 #define PROD 1 // PROD env
 #define DEV 0  // DEV env
 
