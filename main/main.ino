@@ -133,6 +133,8 @@ void loop()
 {
     ESP.wdtFeed(); // avoid reset by error using watchdog;
     handle_ota();
+    handle_wifi("ESP", "123456789");
+    
 
     if(interruptState)
     {

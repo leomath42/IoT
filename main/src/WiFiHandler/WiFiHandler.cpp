@@ -31,6 +31,15 @@ void setup_wifi(const char* AP_SSID, const char* password)
 
 }
 
+void handle_wifi(const char* AP_SSID, const char* password)
+{
+  wifiManager.setConnectTimeout(10);
+  if(wifi.status == WL_DISCONNECTED)
+  {
+    wifiManager.autoConnect(AP_SSID, password);
+  }
+}
+
 void handle_ota()
 {
     ArduinoOTA.handle();
